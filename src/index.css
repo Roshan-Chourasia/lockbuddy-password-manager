@@ -1,1 +1,31 @@
 @import "tailwindcss";
+
+@import "tailwindcss";
+
+body {
+  background-color: #000;
+  background-image: radial-gradient(#cccccc 1px, #000000 1px);
+  background-size: 20px 20px;
+  background-repeat: repeat;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.Toastify__toast-container {
+  padding: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .Toastify__toast {
+    min-width: auto !important;
+    width: 70vw !important;
+    max-width: 320px !important; 
+    padding: 0.5rem 1rem !important;
+    font-size: 0.875rem !important;
+    border-radius: 0.5rem !important;
+  }
+
+  .Toastify__progress-bar {
+    height: 4px !important;
+  }
+}
