@@ -8,7 +8,7 @@ const Manager = () => {
     const [passwordArray, setpasswordArray] = useState([]);
 
     useEffect(() => {
-        let passwords = localStorage.getItem('passwords'); // consistent key 'passwords'
+        let passwords = localStorage.getItem('passwords');
         if (passwords) {
             setpasswordArray(JSON.parse(passwords));
         }
@@ -23,18 +23,11 @@ const Manager = () => {
     };
 
     const savePassword = () => {
-        const updatedPasswords = [...passwordArray, {...form, id:uuidv4()}];
+        const updatedPasswords = [...passwordArray, { ...form, id: uuidv4() }];
         setpasswordArray(updatedPasswords);
-        localStorage.setItem('passwords', JSON.stringify(updatedPasswords)); // consistent key
-        setform({ site: '', username: '', password: '' }); // clear form after saving
-    };
-
-    const deletePassword = (id) => {
-        let c = confirm("Do you really want to delete?")
-        if(c){
-            setpasswordArray(passwordArray.filter(item => item.id!== id))
-            localStorage.setItem("passwords", JSON.stringify(passwordArray.filter(item => item.id!== id)))
-            toast('Password deleted successfully!', {
+        localStorage.setItem('passwords', JSON.stringify(updatedPasswords));
+        setform({ site: '', username: '', password: '' });
+        toast('Password saved!', {
             position: "top-right",
             autoClose: 5000,
             hideProgressBar: false,
@@ -44,12 +37,29 @@ const Manager = () => {
             progress: undefined,
             theme: "dark",
         });
+    };
+
+    const deletePassword = (id) => {
+        let c = confirm("Do you really want to delete?")
+        if (c) {
+            setpasswordArray(passwordArray.filter(item => item.id !== id))
+            localStorage.setItem("passwords", JSON.stringify(passwordArray.filter(item => item.id !== id)))
+            toast('Password deleted successfully!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
         }
     }
 
     const editPassword = (id) => {
-        setform(passwordArray.filter(i=>i.id === id)[0])
-        setpasswordArray(passwordArray.filter(item => item.id!== id))
+        setform(passwordArray.filter(i => i.id === id)[0])
+        setpasswordArray(passwordArray.filter(item => item.id !== id))
 
     }
 
@@ -113,7 +123,7 @@ const Manager = () => {
                                 onChange={handleChange}
                                 placeholder="Enter Password"
                                 className="bg-white rounded-full border-2 border-black text-black p-4 py-2 w-full"
-                                type="text"
+                                type="password"
                                 name="password"
                             />
                             <span className="absolute right-4 top-3 cursor-pointer text-black" onClick={showPassword}>
