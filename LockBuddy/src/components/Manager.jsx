@@ -15,10 +15,13 @@ const Manager = () => {
     }, []);
 
     const showPassword = () => {
-        if (ref.current.src.includes('icons/eyecross.png')) {
+        const input = document.querySelector('input[name="password"]');
+        if (ref.current.src.includes('eyecross.png')) {
             ref.current.src = 'icons/eye.png';
+            input.type = 'password';
         } else {
             ref.current.src = 'icons/eyecross.png';
+            input.type = 'text';
         }
     };
 
@@ -225,7 +228,7 @@ const Manager = () => {
                                             </td>
                                             <td className='text-center py-2 px-3 border break-all'>
                                                 <div className='flex flex-wrap sm:flex-nowrap justify-center items-center gap-2'>
-                                                    <span className='break-all'>{item.password}</span>
+                                                    <span className='break-all'>{"*".repeat(item.password.length)}</span>
                                                     <lord-icon
                                                         className='w-5 cursor-pointer mt-1 sm:mt-0'
                                                         src='https://cdn.lordicon.com/xuoapdes.json'
