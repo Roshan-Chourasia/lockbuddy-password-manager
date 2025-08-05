@@ -4,64 +4,105 @@ import { v4 as uuidv4 } from 'uuid';
 
 const Manager = () => {
     const ref = useRef();
-    const [form, setform] = useState({ site: '', username: '', password: '' });
+    const [form, setform] = useState({ site: '', username: '', password: '', id: '' });
     const [passwordArray, setpasswordArray] = useState([]);
 
+    const getPasswords = async () => {
+        let req = await fetch('http://localhost:3000/');
+        let passwords = await req.json();
+        setpasswordArray(passwords);
+    };
+
     useEffect(() => {
-        let passwords = localStorage.getItem('passwords');
-        if (passwords) {
-            setpasswordArray(JSON.parse(passwords));
-        }
+        getPasswords();
     }, []);
 
     const showPassword = () => {
-        if (ref.current.src.includes('icons/eyecross.png')) {
+        const input = document.querySelector('input[name="password"]');
+        if (ref.current.src.includes('eyecross.png')) {
             ref.current.src = 'icons/eye.png';
+            input.type = 'password';
         } else {
             ref.current.src = 'icons/eyecross.png';
+            input.type = 'text';
         }
     };
 
-    const savePassword = () => {
+    const savePassword = async () => {
         if (
             form.site.length > 3 &&
             form.password.length > 3 &&
             form.username.length > 3
         ) {
-            const updatedPasswords = [...passwordArray, { ...form, id: uuidv4() }];
-            setpasswordArray(updatedPasswords);
-            localStorage.setItem('passwords', JSON.stringify(updatedPasswords));
-            setform({ site: '', username: '', password: '' });
-            toast('Password saved!', {
-                position: 'top-right',
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: false,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: 'dark',
-            });
+            try {
+                if (form.id) {
+                    // Delete the old password first
+                    await fetch("http://localhost:3000/", {
+                        method: "DELETE",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ id: form.id }),
+                    });
+                }
+
+                // Create new password with new UUID (even for edit)
+                const newId = uuidv4();
+                const newPassword = { ...form, id: newId };
+
+                // Add (POST) the new or edited password
+                await fetch("http://localhost:3000/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(newPassword),
+                });
+
+                setform({ site: "", username: "", password: "", id: "" });
+                await getPasswords();
+                toast("Password saved!", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                });
+            } catch (error) {
+                toast("Error: Unable to save password!", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                });
+            }
         } else {
-            toast('Error: Password not saved!', {
-                position: 'top-right',
+            toast("Error: Please fill all fields with at least 4 characters!", {
+                position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: false,
                 closeOnClick: false,
                 pauseOnHover: true,
                 draggable: true,
                 progress: undefined,
-                theme: 'dark',
+                theme: "dark",
             });
         }
     };
 
-    const deletePassword = (id) => {
-        let c = confirm('Do you really want to delete?');
-        if (c) {
-            const updated = passwordArray.filter((item) => item.id !== id);
-            setpasswordArray(updated);
-            localStorage.setItem('passwords', JSON.stringify(updated));
+
+
+    const deletePassword = async (id) => {
+        if (window.confirm('Do you really want to delete?')) {
+            await fetch("http://localhost:3000/", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id })
+            });
+            await getPasswords();
             toast('Password deleted successfully!', {
                 position: 'top-right',
                 autoClose: 5000,
@@ -76,9 +117,12 @@ const Manager = () => {
     };
 
     const editPassword = (id) => {
-        setform(passwordArray.filter((i) => i.id === id)[0]);
-        setpasswordArray(passwordArray.filter((item) => item.id !== id));
+        const item = passwordArray.find((i) => i.id === id);
+        if (item) {
+            setform(item);
+        }
     };
+
 
     const handleChange = (e) => {
         setform({ ...form, [e.target.name]: e.target.value });
@@ -190,8 +234,8 @@ const Manager = () => {
                                     </tr>
                                 </thead>
                                 <tbody className='bg-gray-500'>
-                                    {passwordArray.map((item, index) => (
-                                        <tr key={index}>
+                                    {passwordArray.map((item) => (
+                                        <tr key={item.id}>
                                             <td className='text-center py-2 px-3 border break-all'>
                                                 <div className='flex flex-wrap sm:flex-nowrap justify-center items-center gap-2'>
                                                     <a
@@ -225,7 +269,7 @@ const Manager = () => {
                                             </td>
                                             <td className='text-center py-2 px-3 border break-all'>
                                                 <div className='flex flex-wrap sm:flex-nowrap justify-center items-center gap-2'>
-                                                    <span className='break-all'>{item.password}</span>
+                                                    <span className='break-all'>{"*".repeat(item.password.length)}</span>
                                                     <lord-icon
                                                         className='w-5 cursor-pointer mt-1 sm:mt-0'
                                                         src='https://cdn.lordicon.com/xuoapdes.json'
