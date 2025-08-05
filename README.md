@@ -22,7 +22,7 @@ Both implementations provide an intuitive and secure interface for managing pass
 
 See the README files in each folder for specific setup and running instructions:
 
-- [lockbuddy/README.md](./lockbuddy/README.md)
+- [lockbuddy/README.md](LockBuddy)
 - [lockbuddy-mongodb/README.md](./lockbuddy-mongodb/README.md)
 
 ---
